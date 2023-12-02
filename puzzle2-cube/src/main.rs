@@ -68,22 +68,63 @@ fn subset_supported(subset: &HashMap<&str, u32>, target_subset: &HashMap<&str, u
     }
     true
 }
+//---------------------------funcs for puzzle part two-------------------------------
 
+fn get_power_sum(content: &String) -> u32{
+    content.lines().map(|line| get_line_min_power(line)).sum()
+}
+
+fn get_line_min_power(line: &str) -> u32{
+    let min_subset = get_minimum_subset(line);
+    let mut power = 1;
+    for ele in min_subset.values() {
+        power *= ele;
+    }
+    power
+}
+
+fn get_minimum_subset(line: &str) -> HashMap<&str, u32> {
+    let mut min_subset: HashMap<&str, u32> = HashMap::new();
+    let subsets = get_subsets(line);
+
+    min_subset.insert("red", 0);
+    min_subset.insert("green", 0);
+    min_subset.insert("blue", 0);
+
+    for subset in subsets {
+        for cube in subset {
+            if let Some(min_value) = min_subset.get_mut(cube.0) {
+                *min_value = cube.1.max(*min_value);
+            }
+        }
+    }
+    min_subset
+}
 
 fn main() {
+    let mut calculate_power = false;
+    let mut target_subset: HashMap<&str, u32> = HashMap::new();
     let args: Vec<String> = env::args().collect();
+
     if args.len() < 5 {
-        panic!("program is missing arguments");
+        calculate_power = true;
+    } else {
+        target_subset.insert("red", args[2].parse().expect("failed parsing of red parameter"));
+        target_subset.insert("green", args[3].parse().expect("failed parsing of green parameter"));
+        target_subset.insert("blue", args[4].parse().expect("failed parsing of blue parameter"));
+    }
+
+    if args.len() < 2 {
+        panic!("program is missing input file path");
     }
 
     let file_path = &args[1];
     let content = fs::read_to_string(file_path).expect("invalid file path");
-
-    let mut target_subset: HashMap<&str, u32> = HashMap::new();
-    target_subset.insert("red", args[2].parse().expect("failed parsing of red parameter"));
-    target_subset.insert("green", args[3].parse().expect("failed parsing of green parameter"));
-    target_subset.insert("blue", args[4].parse().expect("failed parsing of blue parameter"));
     let target_subset = target_subset;
 
-    println!("{}", get_id_sum(&content, &target_subset));
+    if calculate_power {
+        println!("{}", get_power_sum(&content));
+    } else {
+        println!("{}", get_id_sum(&content, &target_subset));
+    }
 }
