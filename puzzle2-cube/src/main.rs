@@ -70,11 +70,11 @@ fn subset_supported(subset: &HashMap<&str, u32>, target_subset: &HashMap<&str, u
 }
 //---------------------------funcs for puzzle part two-------------------------------
 
-fn get_power_sum(content: &String) -> u32{
+fn get_power_sum(content: &String) -> u32 {
     content.lines().map(|line| get_line_min_power(line)).sum()
 }
 
-fn get_line_min_power(line: &str) -> u32{
+fn get_line_min_power(line: &str) -> u32 {
     let min_subset = get_minimum_subset(line);
     let mut power = 1;
     for ele in min_subset.values() {
